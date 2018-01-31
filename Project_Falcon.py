@@ -16,7 +16,7 @@ playerColor = [(255, 255, 244)]
 bottomPlatformOffset = 100
 
 # Defining All Obstacles
-levelObstacles = [[[1, displaySize[1] - bottomPlatformOffset, displaySize[0], bottomPlatformOffset - 10, "Rect", (255, 255, 255), 0, [False], [False], False], [1, 1, 1000, 50, "Rect", (255, 255, 255), 0, [False], [False], False], [500, 300, 100, 50, "Rect", (255, 0, 0), 0, [False], [True, 0, 0], True], [200, 200, 150, 50, "Rect", (255, 255, 0), 0, [False], [True, 0, 0], False]]]
+levelObstacles = [[[1, displaySize[1] - bottomPlatformOffset, displaySize[0], bottomPlatformOffset - 10, "Rect", (255, 255, 255), 0, [False], [False], False], [1, 1, 1000, 50, "Rect", (255, 255, 255), 0, [False], [False], False], [201, 300, 100, 50, "Rect", (255, 0, 0), 0, [False], [True, 0, 0], True], [200, 200, 150, 50, "Rect", (255, 255, 0), 0, [False], [True, 0, 0], False]]]
 levelText = [[[300, 300, 40, (255, 0, 255), 'Futura PT Light', 'Controls - WASD']]]
 
 
@@ -63,6 +63,8 @@ def openSettings(txtPath):
         gravitySettings = lines[0]
         if gravitySettings[:7] == 'gravity':
             openedFile.close()
+            if float(gravitySettings[8:]) < 0:
+                return str(-float(gravitySettings[8:]))
             return gravitySettings[8:]
     else:
         writeSettings(settingsDataPath, 0.003)
@@ -159,7 +161,7 @@ def checkCollisionObject(xPos, yPos, xSize, ySize, objects, currentVelocity, bou
                     if bounceDivider == 0:
                         bounceDivider = 2
                     currentVelocity = -(currentVelocity/bounceDivider)
-                if xPos + xSize > objects[i][0] and xPos < objects[i][0] + objects[i][2] and yPos > objects[i][1] and yPos < objects[i][1] + objects[i][3]:
+                if xPos + xSize > objects[i][0] and xPos < objects[i][0] + objects[i][2] and yPos > objects[i][1] and yPos < (objects[i][1] + objects[i][3]):
                     yPos = objects[i][1] + objects[i][3]
                     if bounceDivider == 0:
                         bounceDivider = 2
@@ -203,6 +205,31 @@ def selectObject(current, selectableObjs, direction = "+"):
     return newObj
 
 
+def Raycast(xPos, yPos, direction, width, length, objects, playerX, playerY, playerSize):
+    foundObject = False
+    objectIndex = -1
+    foundPlayer = False
+    X = xPos
+    Y = yPos
+    i = 0
+    while i < length and foundObject == False:
+        if direction == "Left":
+            X = X - 5
+        for obj in objects:
+            if X > obj[0] and X < obj[0] + obj[2] and Y > obj[1] and Y < obj[1] + obj[3] and foundPlayer == False:
+                foundObject = True
+                objectIndex = getIndex(obj, objects)
+                break
+        if X > playerX and X < playerX + playerSize and Y > playerY and Y < playerY + playerSize and foundObject == False:
+            foundPlayer = True
+            break
+        #pygame.draw.circle(display, (255, 255, 255), (int(X), int(Y)), 20)
+        i = i + 1
+
+    return foundPlayer, foundObject, objectIndex
+        
+
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -219,6 +246,8 @@ while running:
 
     # Color the Window
     display.fill(levelColor[currentLevel - 1])
+
+    raycast = Raycast(500, 700, "Left", 20, 100, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
 
     
     if showingSettings == False:
