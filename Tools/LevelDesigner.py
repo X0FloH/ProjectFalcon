@@ -13,6 +13,9 @@ mouseDown = False
 pygame.display.set_caption("Project Falcon Level Designer")
 display = pygame.display.set_mode(displaySize)
 
+if not os.path.exists("Colors"):
+    os.makedirs("Colors")
+
 minSliderVal = 200
 maxSliderVal = int((minSliderVal + 510))
 
@@ -51,6 +54,30 @@ def getIndex(find, listS):
 def wait(time):
     sleep(time)
     return
+
+def makeColorFile(fileName, rC, bC, gC):
+    makeFile = open(fileName + ".txt", "a+")
+    makeFile.close()
+    file = open(fileName + ".txt", "r+")
+    file.write(str(rC))
+    file.write("\n")
+    file.write(str(bC))
+    file.write("\n")
+    file.write(str(gC))
+    file.close()
+
+def readColorFile(fileName):
+    file = open(fileName + ".txt", "r+")
+    lines = file.readlines()
+    return int(int(lines[0])*2) + minSliderVal, int(int(lines[1])*2) + minSliderVal, int(int(lines[2])*2) + minSliderVal
+
+def isFile(name, folder):
+    found = False
+    for file in os.listdir(folder):
+        if name == file[:-4]:
+            found = True
+    return found
+    
 
 running = True
 
@@ -93,6 +120,27 @@ while running:
 
             if mouseDown and heldObjIndex == getIndex(obj, objects):
                 obj[0], obj[1] = drag(obj[0], obj[1], obj[2], obj[3], mouseX, mouseY)
+
+                #Temp Sizing
+
+                keysS = pygame.key.get_pressed()
+
+                if (keysS[pygame.K_RIGHT] or keysS[pygame.K_d]) and not keysS[pygame.K_LSHIFT]:
+                    obj[2] += 0.1
+                if (keysS[pygame.K_LEFT] or keysS[pygame.K_a]) and not keysS[pygame.K_LSHIFT]:
+                    obj[2] -= 0.1
+                if (keysS[pygame.K_RIGHT] or keysS[pygame.K_d]) and keysS[pygame.K_LSHIFT]:
+                    obj[2] += 0.05
+                if (keysS[pygame.K_LEFT] or keysS[pygame.K_a]) and keysS[pygame.K_LSHIFT]:
+                    obj[2] -= 0.05
+                if (keysS[pygame.K_UP] or keysS[pygame.K_w]) and not keysS[pygame.K_LSHIFT]:
+                    obj[3] -= 0.1
+                if (keysS[pygame.K_DOWN] or keysS[pygame.K_s]) and not keysS[pygame.K_LSHIFT]:
+                    obj[3] += 0.1
+                if (keysS[pygame.K_UP] or keysS[pygame.K_w]) and keysS[pygame.K_LSHIFT]:
+                    obj[3] -= 0.05
+                if (keysS[pygame.K_DOWN] or keysS[pygame.K_s]) and keysS[pygame.K_LSHIFT]:
+                    obj[3] += 0.05
             obst = drawSquare(obj[0], obj[1], obj[2], obj[3], obj[5])
 
             if mouseDownRight and mouseX > obj[0] and mouseX < obj[0] + obj[2] and mouseY > obj[1] and mouseY < obj[1] + obj[3]:
@@ -115,9 +163,27 @@ while running:
                 del history[len(history)-2]
                 wait(0.2)
 
-        if keys[pygame.K_p] and keys[pygame.K_LCTRL]:
+        if keys[pygame.K_p] and keys[pygame.K_LCTRL] and not keys[pygame.K_c]:
             print("The current level: " + str(objects))
             wait(0.5)
+
+        if keys[pygame.K_p] and keys[pygame.K_c] and keys[pygame.K_LCTRL]:
+            print("The current color (RGB): " + "(" + str(currentColor[0]) + ", " + str(currentColor[1]) + ", " + str(currentColor[2]) + ")")
+            wait(0.5)
+
+        if keys[pygame.K_s] and keys[pygame.K_LCTRL] and keys[pygame.K_c]:
+            print("Saving Color: " + "(" + str(currentColor[0]) + ", " + str(currentColor[1]) + ", " + str(currentColor[2]) + ")")
+            name = input("What is the name for the color? ")
+            makeColorFile("Colors/" + name, currentColor[0], currentColor[1], currentColor[2])
+            wait(0.5)
+
+        if keys[pygame.K_l] and keys[pygame.K_LCTRL] and keys[pygame.K_c]:
+            name = input("What is the name of the color you want to load? ")
+            if isFile(name, "Colors"):
+                sliders[0][0], sliders[1][0], sliders[2][0] = readColorFile("Colors/" + name)
+            wait(0.5)
+
+            
 
         colorBlock = pygame.draw.circle(display, (currentColor[0], currentColor[1], currentColor[2]), (int(0 + (colorCircleRadius)), int(0 + (colorCircleRadius))), colorCircleRadius)
 

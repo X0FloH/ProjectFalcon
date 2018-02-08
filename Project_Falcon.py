@@ -16,7 +16,7 @@ playerColor = [(255, 255, 244)]
 bottomPlatformOffset = 100
 
 # Defining All Obstacles
-levelObstacles = [[[1, displaySize[1] - bottomPlatformOffset, displaySize[0], bottomPlatformOffset - 10, "Rect", (255, 255, 255), 0, [False], [False], False], [1, 1, 1000, 50, "Rect", (255, 255, 255), 0, [False], [False], False], [201, 300, 100, 50, "Rect", (255, 0, 0), 0, [False], [True, 0, 0], True], [200, 200, 150, 50, "Rect", (255, 255, 0), 0, [False], [True, 0, 0], False]]]
+levelObstacles = [[[1, displaySize[1] - bottomPlatformOffset, displaySize[0], bottomPlatformOffset - 10, "Rect", (255, 255, 255), 0, [False], [False], False], [1, 1, 1000, 50, "Rect", (255, 255, 255), 0, [False], [False], False], [201, 300, 100, 50, "Rect", (255, 0, 0), 0, [False], [True, 0, 0], True], [600, 200, 150, 50, "Rect", (255, 255, 0), 0, [False], [True, 0, 0], False]]]
 levelText = [[[300, 300, 40, (255, 0, 255), 'Futura PT Light', 'Controls - WASD']]]
 
 
@@ -44,10 +44,19 @@ jumpForce = -.85
 currentX = 30
 currentY = 200
 
+mouseDown = False
+mouseRightDown = False
+mouseClicked = False
+mouseHasClicked = False
+
 showingSettings = False
 selected = "Gravity"
 selectables = ["Gravity", "Quit"]
 
+currentGun = "Pistol"
+shootFrame = 0
+pistolMax = 20
+currentShooting = False
 
 def writeSettings(txtPath, gravityAmount):
     openedFile = open(txtPath, 'w+')
@@ -169,6 +178,7 @@ def checkCollisionObject(xPos, yPos, xSize, ySize, objects, currentVelocity, bou
         i = i + 1
     return xPos, yPos, currentVelocity
 
+
 def toggleBool(inputBool):
     if inputBool == True:
         inputBool = False
@@ -184,7 +194,7 @@ def getIndex(find, strList):
         if find == strList[i]:
             foundIndex = i
         i = i + 1
-    return foundIndex
+    return foundIndex-1
 
 def selectObject(current, selectableObjs, direction = "+"):
     currentID = getIndex(current, selectableObjs)
@@ -205,7 +215,7 @@ def selectObject(current, selectableObjs, direction = "+"):
     return newObj
 
 
-def Raycast(xPos, yPos, direction, width, length, objects, playerX, playerY, playerSize):
+def Raycast(xPos, yPos, direction, width, length, draw, mode, drawSize, objects, playerX, playerY, playerSize):
     foundObject = False
     objectIndex = -1
     foundPlayer = False
@@ -213,21 +223,27 @@ def Raycast(xPos, yPos, direction, width, length, objects, playerX, playerY, pla
     Y = yPos
     i = 0
     while i < length and foundObject == False:
-        if direction == "Left":
-            X = X - 5
-        for obj in objects:
-            if X > obj[0] and X < obj[0] + obj[2] and Y > obj[1] and Y < obj[1] + obj[3] and foundPlayer == False:
-                foundObject = True
-                objectIndex = getIndex(obj, objects)
+        X = X + direction[0]
+        Y = Y + direction[1]
+        if mode == "Circle":
+            for obj in objects:
+                if X + (drawSize) > obj[0] and X < obj[0] + obj[2] and Y + (drawSize) > obj[1] and Y < obj[1] + obj[3] and foundPlayer == False:
+                    foundObject = True
+                    objectIndex = getIndex(obj, objects)
+                    break
+            if X + (drawSize) > playerX and X < playerX + playerSize and Y + (drawSize) > playerY and Y < playerY + playerSize and foundObject == False:
+                foundPlayer = True
                 break
-        if X > playerX and X < playerX + playerSize and Y > playerY and Y < playerY + playerSize and foundObject == False:
-            foundPlayer = True
-            break
-        #pygame.draw.circle(display, (255, 255, 255), (int(X), int(Y)), 20)
+        if draw and mode == "Circle":
+            pygame.draw.circle(display, (255, 255, 255), (int(X), int(Y)), drawSize)
         i = i + 1
 
     return foundPlayer, foundObject, objectIndex
-        
+
+def raycastDir(pos1X, pos1Y, pos2X, pos2Y):
+    dirX = pos2X-pos1X
+    dirY = pos2Y-pos1Y
+    return (dirX/10, dirY/10)
 
 
 while running:
@@ -247,9 +263,39 @@ while running:
     # Color the Window
     display.fill(levelColor[currentLevel - 1])
 
-    raycast = Raycast(500, 700, "Left", 20, 100, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
+    mousePos = pygame.mouse.get_pos()
+    mouseClkData = pygame.mouse.get_pressed()
+    mouseDown = bool(mouseClkData[0])
+    mouseRightDown = bool(mouseClkData[2])
+    if mouseDown and mouseHasClicked and mouseClicked:
+        mouseClicked = False
+    if mouseDown and not mouseHasClicked:
+        mouseClicked = True
+        mouseHasClicked = True
+    if not mouseDown:
+        mouseClicked = False
+        mouseHasClicked = False
 
+    if mouseClicked:
+        shootFrame = 0
+        currentShooting = True
     
+    if currentGun == "Pistol":
+        if pygame.mouse.get_pos()[0] > currentX + playerSize:
+            if currentShooting:
+                results = Raycast(currentX + playerSize + 10, currentY + (playerSize/2), raycastDir(currentX + playerSize + 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
+                shootFrame += 1
+                if shootFrame > pistolMax:
+                    currentShooting = False
+                    shootFrame = 0
+        if pygame.mouse.get_pos()[0] < currentX:
+            if currentShooting:
+                results = Raycast(currentX - 10, currentY + (playerSize/2), raycastDir(currentX - 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
+                shootFrame += 1
+                if shootFrame > pistolMax:
+                    currentShooting = False
+                    shootFrame = 0
+
     if showingSettings == False:
         # Add Gravity
         currentYVelocity += gravityScale
