@@ -19,6 +19,10 @@ bottomPlatformOffset = 100
 levelObstacles = [[[1, displaySize[1] - bottomPlatformOffset, displaySize[0], bottomPlatformOffset - 10, "Rect", (255, 255, 255), 0, [False], [False], False], [1, 1, 1000, 50, "Rect", (255, 255, 255), 0, [False], [False], False], [201, 300, 100, 50, "Rect", (255, 0, 0), 0, [False], [True, 0, 0], True], [600, 200, 150, 50, "Rect", (255, 255, 0), 0, [False], [True, 0, 0], False]]]
 levelText = [[[300, 300, 40, (255, 0, 255), 'Futura PT Light', 'Controls - WASD']]]
 
+slomo = 0
+
+camX = 0
+camY = 0
 
 playerSize = 30
 playerBounceDivider = 3
@@ -54,6 +58,7 @@ selected = "Gravity"
 selectables = ["Gravity", "Quit"]
 
 currentGun = "Pistol"
+currentBullet = 7
 shootFrame = 0
 pistolMax = 20
 currentShooting = False
@@ -263,6 +268,10 @@ while running:
     # Color the Window
     display.fill(levelColor[currentLevel - 1])
 
+    #To have slomo
+    sleep(slomo)
+
+    #Mouse Stuff
     mousePos = pygame.mouse.get_pos()
     mouseClkData = pygame.mouse.get_pressed()
     mouseDown = bool(mouseClkData[0])
@@ -276,10 +285,16 @@ while running:
         mouseClicked = False
         mouseHasClicked = False
 
+    if mouseRightDown:
+        slomo = 0.007
+    else:
+        slomo = 0
+
     if mouseClicked:
         shootFrame = 0
         currentShooting = True
     
+    #Shooting Pistol
     if currentGun == "Pistol":
         if pygame.mouse.get_pos()[0] > currentX + playerSize:
             if currentShooting:
@@ -288,6 +303,7 @@ while running:
                 if shootFrame > pistolMax:
                     currentShooting = False
                     shootFrame = 0
+                    currentBullet -= 1
         if pygame.mouse.get_pos()[0] < currentX:
             if currentShooting:
                 results = Raycast(currentX - 10, currentY + (playerSize/2), raycastDir(currentX - 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
@@ -295,6 +311,7 @@ while running:
                 if shootFrame > pistolMax:
                     currentShooting = False
                     shootFrame = 0
+                    currentBullet -= 1
 
     if showingSettings == False:
         # Add Gravity
