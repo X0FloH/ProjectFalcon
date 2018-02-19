@@ -43,6 +43,9 @@ jumpForce = -.85
 currentX = 30
 currentY = 200
 
+touchingFloor1 = False
+touchingFloor2 = False
+
 # Death variables
 methodDeath = ""
 died = False
@@ -148,30 +151,37 @@ def DrawText(xPos, yPos, fontSize, color, fontName, text):
     textSurface = newFont.render(text, False, color)
     display.blit(textSurface, (xPos, yPos))
 
-def checkCollision(xPos, yPos, xSize, ySize, playerX, playerY, playerSize, currentVelocity, currentJumps, bounceMultiplier, gravityScale, jumpForce, changeGravObj):
+def checkCollision(xPos, yPos, xSize, ySize, playerX, playerY, playerSize, currentVelocity, currentJumps, bounceMultiplier, gravityScale, jumpForce, changeGravObj, died, collided):
     if playerX + (playerSize) > xPos and playerX < xPos + (xSize/2) and playerY + (playerSize-.1) > yPos and (playerY) < (yPos + (ySize)-5):
         playerX = xPos - (playerSize)
         if changeGravObj == True:
             gravityScale, jumpForce = changeGrav(gravityScale, jumpForce)
+        collided = True
     if playerX < (xPos + xSize) and playerX > xPos + (xSize/2) and (playerY + (playerSize) > yPos or (playerY + (playerSize)+.1) > yPos) and playerY < (yPos + (ySize)-5):
         playerX = (xPos + xSize)
-        died = True
         metodDeath = "Squish"
         if changeGravObj == True:
             gravityScale, jumpForce = changeGrav(gravityScale, jumpForce)
+        collided = True
     if playerX + (playerSize) > xPos and playerX < (xPos + xSize) and playerY + (playerSize+2) > yPos and playerY < yPos + (ySize/2):
         currentVelocity = -(currentVelocity/bounceMultiplier)
         currentJumps = 0
         playerY = (yPos - (playerSize)) - 2
+        if negative(gravityScale) and touchingFloor2:
+            died = True
         if changeGravObj == True:
             gravityScale, jumpForce = changeGrav(gravityScale, jumpForce)
+        collided = True
     if playerX + playerSize > xPos and playerX < (xPos + xSize) and playerY + playerSize > yPos + (ySize/2) and playerY < yPos + ySize and gravityScale < 0:
         currentVelocity = -(currentVelocity/bounceMultiplier)
         currentJumps = 0
         playerY = yPos + ySize
+        if not negative(gravityScale) and touchingFloor1:
+            died = True
         if changeGravObj == True:
             gravityScale, jumpForce = changeGrav(gravityScale, jumpForce)
-    return playerX, playerY, currentVelocity, currentJumps, gravityScale, jumpForce
+        collided = True
+    return playerX, playerY, currentVelocity, currentJumps, gravityScale, jumpForce, died, collided
 
 
 def checkCollisionObject(xPos, yPos, xSize, ySize, objects, currentVelocity, bounceDivider):
@@ -318,7 +328,6 @@ while running:
                 if shootFrame > pistolMax:
                     currentShooting = False
                     shootFrame = 0
-                died = True
         if pygame.mouse.get_pos()[0] < currentX:
             if currentShooting:
                 results = Raycast(currentX - 10, currentY + (playerSize/2), raycastDir(currentX - 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
@@ -326,7 +335,6 @@ while running:
                 if shootFrame > pistolMax:
                     currentShooting = False
                     shootFrame = 0
-                died = True
 
     if showingSettings == False:
         # Add Gravity
@@ -354,11 +362,19 @@ while running:
            canJump = True
 
         # Drawing All Objects
-
         i = 0
         while i < len(levelObstacles[currentLevel - 1]):
+            colliding = False
             drawObstacle(levelObstacles[currentLevel-1][i][4], levelObstacles[currentLevel-1][i][0], levelObstacles[currentLevel-1][i][1], levelObstacles[currentLevel-1][i][5], levelObstacles[currentLevel-1][i][2], levelObstacles[currentLevel-1][i][3], levelObstacles[currentLevel-1][i][6])
-            currentX, currentY, currentYVelocity, currentJumps, gravityScale, jumpForce = checkCollision(levelObstacles[currentLevel-1][i][0], levelObstacles[currentLevel-1][i][1], levelObstacles[currentLevel-1][i][2], levelObstacles[currentLevel-1][i][3], currentX, currentY, playerSize, currentYVelocity, currentJumps, playerBounceDivider, gravityScale, jumpForce, levelObstacles[currentLevel-1][i][9])
+            currentX, currentY, currentYVelocity, currentJumps, gravityScale, jumpForce, died, colliding = checkCollision(levelObstacles[currentLevel-1][i][0], levelObstacles[currentLevel-1][i][1], levelObstacles[currentLevel-1][i][2], levelObstacles[currentLevel-1][i][3], currentX, currentY, playerSize, currentYVelocity, currentJumps, playerBounceDivider, gravityScale, jumpForce, levelObstacles[currentLevel-1][i][9], died, False)
+            if i == 0 and colliding:
+                touchingFloor1 = True
+            else:
+                touchingFloor1 = False
+            if i == 1 and colliding:
+                touchingFloor2 = True
+            else:
+                touchingFloor2 = False
             if levelObstacles[currentLevel-1][i][7][0] == True:
                 levelObstacles[currentLevel-1][i][0], levelObstacles[currentLevel-1][i][1], levelObstacles[currentLevel-1][i][7][2], levelObstacles[currentLevel-1][i][7][3] = Animate(levelObstacles[currentLevel-1][i][7][1], levelObstacles[currentLevel-1][i][7][2], levelObstacles[currentLevel-1][i][7][3], levelObstacles[currentLevel-1][i][7][4])
             if levelObstacles[currentLevel-1][i][8][0] == True:
