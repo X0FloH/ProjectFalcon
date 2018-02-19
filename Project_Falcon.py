@@ -63,6 +63,15 @@ shootFrame = 0
 pistolMax = 20
 currentShooting = False
 
+def negative(val):
+    if val < 0:
+        return True
+    else:
+        return False
+
+def inverse(number):
+    return 1-number
+
 def writeSettings(txtPath, gravityAmount):
     openedFile = open(txtPath, 'w+')
     openedFile.write("gravity:" + str(gravityAmount))
@@ -146,6 +155,8 @@ def checkCollision(xPos, yPos, xSize, ySize, playerX, playerY, playerSize, curre
             gravityScale, jumpForce = changeGrav(gravityScale, jumpForce)
     if playerX < (xPos + xSize) and playerX > xPos + (xSize/2) and (playerY + (playerSize) > yPos or (playerY + (playerSize)+.1) > yPos) and playerY < (yPos + (ySize)-5):
         playerX = (xPos + xSize)
+        died = True
+        metodDeath = "Squish"
         if changeGravObj == True:
             gravityScale, jumpForce = changeGrav(gravityScale, jumpForce)
     if playerX + (playerSize) > xPos and playerX < (xPos + xSize) and playerY + (playerSize+2) > yPos and playerY < yPos + (ySize/2):
@@ -251,6 +262,7 @@ def raycastDir(pos1X, pos1Y, pos2X, pos2Y):
     return (dirX/10, dirY/10)
 
 
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -306,7 +318,6 @@ while running:
                 if shootFrame > pistolMax:
                     currentShooting = False
                     shootFrame = 0
-                died = True
         if pygame.mouse.get_pos()[0] < currentX:
             if currentShooting:
                 results = Raycast(currentX - 10, currentY + (playerSize/2), raycastDir(currentX - 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
@@ -314,7 +325,6 @@ while running:
                 if shootFrame > pistolMax:
                     currentShooting = False
                     shootFrame = 0
-                died = True
 
     if showingSettings == False:
         # Add Gravity
