@@ -318,6 +318,7 @@ while running:
                 if shootFrame > pistolMax:
                     currentShooting = False
                     shootFrame = 0
+                died = True
         if pygame.mouse.get_pos()[0] < currentX:
             if currentShooting:
                 results = Raycast(currentX - 10, currentY + (playerSize/2), raycastDir(currentX - 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
@@ -325,6 +326,7 @@ while running:
                 if shootFrame > pistolMax:
                     currentShooting = False
                     shootFrame = 0
+                died = True
 
     if showingSettings == False:
         # Add Gravity
