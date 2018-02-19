@@ -16,7 +16,7 @@ playerColor = [(255, 255, 244)]
 bottomPlatformOffset = 100
 
 # Defining All Obstacles
-levelObstacles = [[[1, displaySize[1] - bottomPlatformOffset, displaySize[0], bottomPlatformOffset - 10, "Rect", (255, 255, 255), 0, [False], [False], False], [1, 1, 1000, 50, "Rect", (255, 255, 255), 0, [False], [False], False], [201, 300, 100, 50, "Rect", (255, 0, 0), 0, [False], [True, 0, 0], True], [600, 200, 150, 50, "Rect", (255, 255, 0), 0, [False], [True, 0, 0], False]]]
+levelObstacles = [[[1, displaySize[1] - bottomPlatformOffset, displaySize[0], bottomPlatformOffset - 10, "Rect", (255, 255, 255), 0, [False], [False], False, False], [1, 1, 1000, 50, "Rect", (255, 255, 255), 0, [False], [False], False, False], [201, 300, 100, 50, "Rect", (255, 0, 0), 0, [False], [True, 0, 0], True, False], [600, 200, 150, 50, "Rect", (255, 255, 0), 0, [False], [True, 0, 0], False, False]]]
 levelText = [[[300, 300, 40, (255, 0, 255), 'Futura PT Light', 'Controls - WASD']]]
 
 
