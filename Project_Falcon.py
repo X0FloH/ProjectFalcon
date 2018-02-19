@@ -19,7 +19,6 @@ bottomPlatformOffset = 100
 levelObstacles = [[[1, displaySize[1] - bottomPlatformOffset, displaySize[0], bottomPlatformOffset - 10, "Rect", (255, 255, 255), 0, [False], [False], False, False], [1, 1, 1000, 50, "Rect", (255, 255, 255), 0, [False], [False], False, False], [201, 300, 100, 50, "Rect", (255, 0, 0), 0, [False], [True, 0, 0], True, False], [600, 200, 150, 50, "Rect", (255, 255, 0), 0, [False], [True, 0, 0], False, False]]]
 levelText = [[[300, 300, 40, (255, 0, 255), 'Futura PT Light', 'Controls - WASD']]]
 
-
 playerSize = 30
 playerBounceDivider = 3
 
@@ -43,6 +42,12 @@ jumpForce = -.85
 
 currentX = 30
 currentY = 200
+
+# Death variables
+methodDeath = ""
+died = False
+shownDeath = False
+diedScreen = 0
 
 mouseDown = False
 mouseRightDown = False
@@ -279,7 +284,20 @@ while running:
     if mouseClicked:
         shootFrame = 0
         currentShooting = True
-    
+
+    if died == True and shownDeath == False:
+        image = pygame.image.load('Sprites/DeathScreen.png').convert_alpha()
+        image.fill((255, 255, 255, diedScreen), None, pygame.BLEND_RGBA_MULT)
+        display.blit(image, (0, 0))
+        diedScreen += 1
+        sleep(0.001)
+        if diedScreen == 255:
+            shownDeath = True
+
+    if died == True and shownDeath == True:
+        image = pygame.image.load('Sprites/DeathScreen.png').convert_alpha()
+        display.blit(image, (0, 0))
+        
     if currentGun == "Pistol":
         if pygame.mouse.get_pos()[0] > currentX + playerSize:
             if currentShooting:
@@ -288,6 +306,7 @@ while running:
                 if shootFrame > pistolMax:
                     currentShooting = False
                     shootFrame = 0
+                died = True
         if pygame.mouse.get_pos()[0] < currentX:
             if currentShooting:
                 results = Raycast(currentX - 10, currentY + (playerSize/2), raycastDir(currentX - 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
@@ -295,6 +314,7 @@ while running:
                 if shootFrame > pistolMax:
                     currentShooting = False
                     shootFrame = 0
+                died = True
 
     if showingSettings == False:
         # Add Gravity
@@ -310,13 +330,13 @@ while running:
         #User Input
         user_input = pygame.key.get_pressed()
 
-        if user_input[pygame.K_LEFT] or user_input[pygame.K_a]:
+        if (user_input[pygame.K_LEFT] or user_input[pygame.K_a]) and not died:
             currentX -= 0.4
-        if user_input[pygame.K_RIGHT] or user_input[pygame.K_d]:
+        if (user_input[pygame.K_RIGHT] or user_input[pygame.K_d]) and not died:
             currentX += 0.4
 
         # Stop Infinite Jumps
-        if currentJumps >= 2:
+        if currentJumps >= 2 or died:
             canJump = False
         else:
            canJump = True
