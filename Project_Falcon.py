@@ -151,7 +151,7 @@ def DrawText(xPos, yPos, fontSize, color, fontName, text):
     textSurface = newFont.render(text, False, color)
     display.blit(textSurface, (xPos, yPos))
 
-def checkCollision(xPos, yPos, xSize, ySize, playerX, playerY, playerSize, currentVelocity, currentJumps, bounceMultiplier, gravityScale, jumpForce, changeGravObj, died, collided):
+def checkCollision(xPos, yPos, xSize, ySize, playerX, playerY, playerSize, currentVelocity, currentJumps, bounceMultiplier, gravityScale, jumpForce, changeGravObj, died, collided, methodDeath):
     if playerX + (playerSize) > xPos and playerX < xPos + (xSize/2) and playerY + (playerSize-.1) > yPos and (playerY) < (yPos + (ySize)-5):
         playerX = xPos - (playerSize)
         if changeGravObj == True:
@@ -159,7 +159,6 @@ def checkCollision(xPos, yPos, xSize, ySize, playerX, playerY, playerSize, curre
         collided = True
     if playerX < (xPos + xSize) and playerX > xPos + (xSize/2) and (playerY + (playerSize) > yPos or (playerY + (playerSize)+.1) > yPos) and playerY < (yPos + (ySize)-5):
         playerX = (xPos + xSize)
-        metodDeath = "Squish"
         if changeGravObj == True:
             gravityScale, jumpForce = changeGrav(gravityScale, jumpForce)
         collided = True
@@ -169,6 +168,7 @@ def checkCollision(xPos, yPos, xSize, ySize, playerX, playerY, playerSize, curre
         playerY = (yPos - (playerSize)) - 2
         if negative(gravityScale) and touchingFloor2:
             died = True
+            methodDeath = "Squished"
         if changeGravObj == True:
             gravityScale, jumpForce = changeGrav(gravityScale, jumpForce)
         collided = True
@@ -178,10 +178,11 @@ def checkCollision(xPos, yPos, xSize, ySize, playerX, playerY, playerSize, curre
         playerY = yPos + ySize
         if not negative(gravityScale) and touchingFloor1:
             died = True
+            methodDeath = "Squished"
         if changeGravObj == True:
             gravityScale, jumpForce = changeGrav(gravityScale, jumpForce)
         collided = True
-    return playerX, playerY, currentVelocity, currentJumps, gravityScale, jumpForce, died, collided
+    return playerX, playerY, currentVelocity, currentJumps, gravityScale, jumpForce, died, collided, methodDeath
 
 
 def checkCollisionObject(xPos, yPos, xSize, ySize, objects, currentVelocity, bounceDivider):
@@ -307,9 +308,15 @@ while running:
         shootFrame = 0
         currentShooting = True
 
-    if died == True and shownDeath == False:
+    if died == True and shownDeath == False and showingSettings == False:
         image = pygame.image.load('Sprites/DeathScreen.png').convert_alpha()
         image.fill((255, 255, 255, diedScreen), None, pygame.BLEND_RGBA_MULT)
+        newFont = pygame.font.SysFont("Ariel", 60)
+        textSurface = newFont.render("You Died", False, (0, 0, 0))
+        image.blit(textSurface, (390, 250))
+        newFont = pygame.font.SysFont("Ariel", 40)
+        textSurface = newFont.render('"' + methodDeath + '"', False, (0, 0, 0))
+        image.blit(textSurface, (380, 350))
         display.blit(image, (0, 0))
         diedScreen += 1
         sleep(0.001)
@@ -366,7 +373,7 @@ while running:
         while i < len(levelObstacles[currentLevel - 1]):
             colliding = False
             drawObstacle(levelObstacles[currentLevel-1][i][4], levelObstacles[currentLevel-1][i][0], levelObstacles[currentLevel-1][i][1], levelObstacles[currentLevel-1][i][5], levelObstacles[currentLevel-1][i][2], levelObstacles[currentLevel-1][i][3], levelObstacles[currentLevel-1][i][6])
-            currentX, currentY, currentYVelocity, currentJumps, gravityScale, jumpForce, died, colliding = checkCollision(levelObstacles[currentLevel-1][i][0], levelObstacles[currentLevel-1][i][1], levelObstacles[currentLevel-1][i][2], levelObstacles[currentLevel-1][i][3], currentX, currentY, playerSize, currentYVelocity, currentJumps, playerBounceDivider, gravityScale, jumpForce, levelObstacles[currentLevel-1][i][9], died, False)
+            currentX, currentY, currentYVelocity, currentJumps, gravityScale, jumpForce, died, colliding, methodDeath = checkCollision(levelObstacles[currentLevel-1][i][0], levelObstacles[currentLevel-1][i][1], levelObstacles[currentLevel-1][i][2], levelObstacles[currentLevel-1][i][3], currentX, currentY, playerSize, currentYVelocity, currentJumps, playerBounceDivider, gravityScale, jumpForce, levelObstacles[currentLevel-1][i][9], died, False, methodDeath)
             if i == 0 and colliding:
                 touchingFloor1 = True
             else:
