@@ -235,6 +235,7 @@ def selectObject(current, selectableObjs, direction = "+"):
             
     elif direction == "-":
         currentID -= 1
+        print("Unofficial: " + str(currentID))
         if currentID < 0:
             currentID = len(selectableObjs)-1
     print(str(currentID))
@@ -275,7 +276,8 @@ def raycastDir(pos1X, pos1Y, pos2X, pos2Y):
 
 
 while running:
-    for event in pygame.event.get():
+    events = pygame.event.get()
+    for event in events:
         if event.type == pygame.QUIT:
             running = False
             break
@@ -316,7 +318,7 @@ while running:
         image.blit(textSurface, (390, 250))
         newFont = pygame.font.SysFont("Ariel", 40)
         textSurface = newFont.render('"' + methodDeath + '"', False, (0, 0, 0))
-        image.blit(textSurface, (380, 350))
+        image.blit(textSurface, (390, 350))
         display.blit(image, (0, 0))
         diedScreen += 1
         sleep(0.001)
@@ -423,15 +425,16 @@ while running:
         if keys[pygame.K_LEFT]:
             if selected == "Gravity" and showingSettings:
                 gravityScale -= 0.000005
-        if keys[pygame.K_UP]:
-            selected = selectObject(selected, selectables, "-")
-            sleep(0.2)
-        if keys[pygame.K_DOWN]:
-            selected = selectObject(selected, selectables, "+")
-            sleep(0.2)
         if keys[pygame.K_RETURN]:
             if selected == "Quit" and showingSettings:
                 break
+
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = selectObject(selected, selectables, "-")
+                if event.key == pygame.K_DOWN:
+                    selected = selectObject(selected, selectables, "+")
 
     pygame.display.update()
 
