@@ -319,15 +319,35 @@ while running:
         newFont = pygame.font.SysFont("Ariel", 40)
         textSurface = newFont.render('"' + methodDeath + '"', False, (0, 0, 0))
         image.blit(textSurface, (390, 350))
+        newFont = pygame.font.SysFont("Ariel", 40)
+        textSurface = newFont.render("Press any key to restart", False, (0, 0, 0))
+        image.blit(textSurface, (390, 450))
         display.blit(image, (0, 0))
         diedScreen += 1
         sleep(0.001)
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                file = open("Project_Falcon.py", "r+")
+                exec(file.read())
         if diedScreen == 255:
             shownDeath = True
 
-    if died == True and shownDeath == True:
+    if died == True and shownDeath == True and showingSettings == False:
         image = pygame.image.load('Sprites/DeathScreen.png').convert_alpha()
+        newFont = pygame.font.SysFont("Ariel", 60)
+        textSurface = newFont.render("You Died", False, (0, 0, 0))
+        image.blit(textSurface, (390, 250))
+        newFont = pygame.font.SysFont("Ariel", 40)
+        textSurface = newFont.render('"' + methodDeath + '"', False, (0, 0, 0))
+        image.blit(textSurface, (390, 350))
+        newFont = pygame.font.SysFont("Ariel", 40)
+        textSurface = newFont.render("Press any key to restart", False, (0, 255, 0))
+        image.blit(textSurface, (390, 450))
         display.blit(image, (0, 0))
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                file = open("Project_Falcon.py", "r+")
+                exec(file.read())
         
     if currentGun == "Pistol":
         if pygame.mouse.get_pos()[0] > currentX + playerSize:
