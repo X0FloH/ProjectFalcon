@@ -255,11 +255,11 @@ def Raycast(xPos, yPos, direction, width, length, draw, mode, drawSize, objects,
         Y = Y + direction[1]
         if mode == "Circle":
             for obj in objects:
-                if X + (drawSize) > obj[0] and X < obj[0] + obj[2] and Y + (drawSize) > obj[1] and Y < obj[1] + obj[3] and foundPlayer == False:
+                if X + (drawSize) > obj[0] and X - (drawSize) < obj[0] + obj[2] and Y + (drawSize) > obj[1] and Y - (drawSize) < obj[1] + obj[3] and foundPlayer == False:
                     foundObject = True
                     objectIndex = getIndex(obj, objects)
                     break
-            if X + (drawSize) > playerX and X < playerX + playerSize and Y + (drawSize) > playerY and Y < playerY + playerSize and foundObject == False:
+            if X + (drawSize) > playerX and X - (drawSize) < playerX + playerSize and Y + (drawSize) > playerY and Y - (drawSize) < playerY + playerSize and foundObject == False:
                 foundPlayer = True
                 break
         if draw and mode == "Circle":
@@ -273,6 +273,15 @@ def raycastDir(pos1X, pos1Y, pos2X, pos2Y):
     dirY = pos2Y-pos1Y
     return (dirX/10, dirY/10)
 
+def axisDir(axis):
+    if axis == "Left" or axis == "left":
+        return (-1, 0)
+    if axis == "Right" or axis == "right":
+        return (1, 0)
+    if axis == "Up" or axis == "up":
+        return (0, -1)
+    if axis == "Down" or axis == "down":
+        return (0, 1)
 
 
 while running:
@@ -410,6 +419,12 @@ while running:
                 levelObstacles[currentLevel-1][i][0], levelObstacles[currentLevel-1][i][1], levelObstacles[currentLevel-1][i][8] = addPhysics(levelObstacles[currentLevel-1][i][0], levelObstacles[currentLevel-1][i][1], levelObstacles[currentLevel-1][i][8], gravityScale)
                 levelObstacles[currentLevel-1][i][0], levelObstacles[currentLevel-1][i][1], levelObstacles[currentLevel-1][i][8][1] = checkCollisionObject(levelObstacles[currentLevel-1][i][0], levelObstacles[currentLevel-1][i][1], levelObstacles[currentLevel-1][i][2], levelObstacles[currentLevel-1][i][3], levelObstacles[currentLevel-1], levelObstacles[currentLevel-1][i][8][1], levelObstacles[currentLevel-1][i][8][2])
             i = i + 1
+
+        pygame.draw.rect(display, (255, 255, 255), pygame.Rect(800, 700, 50, 50))
+        rayResults = Raycast(790, 725, axisDir("Left"), 10, 600, True, "Circle", 20, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
+        print(str(rayResults))
+
+        
 
         # Drawing All Text
         f = 0
