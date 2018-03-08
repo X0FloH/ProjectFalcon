@@ -19,6 +19,9 @@ bottomPlatformOffset = 100
 levelObstacles = [[[1, displaySize[1] - bottomPlatformOffset, displaySize[0], bottomPlatformOffset - 10, "Rect", (255, 255, 255), 0, [False], [False], False, False], [1, 1, 1000, 50, "Rect", (255, 255, 255), 0, [False], [False], False, False], [201, 300, 100, 50, "Rect", (255, 0, 0), 0, [False], [True, 0, 0], True, False], [600, 200, 150, 50, "Rect", (255, 255, 0), 0, [False], [True, 0, 0], False, False]]]
 levelText = [[[300, 300, 40, (255, 0, 255), 'Futura PT Light', 'Controls - WASD']]]
 
+#Defining all Guards
+levelGuards = [[[800, 700, 50, 50, (255, 0, 0), 100, (0.5, 0)]]]
+
 playerSize = 30
 playerBounceDivider = 3
 
@@ -243,10 +246,12 @@ def selectObject(current, selectableObjs, direction = "+"):
     return newObj
 
 
-def Raycast(xPos, yPos, direction, width, length, draw, mode, drawSize, objects, playerX, playerY, playerSize):
+def Raycast(xPos, yPos, direction, width, length, draw, mode, drawSize, objects, playerX, playerY, playerSize, guards):
     foundObject = False
     objectIndex = -1
     foundPlayer = False
+    foundGuard = False
+    guardIndex = -1
     X = xPos
     Y = yPos
     i = 0
@@ -259,6 +264,10 @@ def Raycast(xPos, yPos, direction, width, length, draw, mode, drawSize, objects,
                     foundObject = True
                     objectIndex = getIndex(obj, objects)
                     break
+            for guard in guards:
+                if X + (drawSize) > guard[0] and X - (drawSize) < guard[0] + guard[2] and Y + (drawSize) > guard[1] and Y - (drawSize) < guard[1] + guard[3] and foundPlayer == False and foundObject == False:
+                    foundGuard = True
+                    guardIndex = getIndex(guard, guards)
             if X + (drawSize) > playerX and X - (drawSize) < playerX + playerSize and Y + (drawSize) > playerY and Y - (drawSize) < playerY + playerSize and foundObject == False:
                 foundPlayer = True
                 break
@@ -266,7 +275,7 @@ def Raycast(xPos, yPos, direction, width, length, draw, mode, drawSize, objects,
             pygame.draw.circle(display, (255, 255, 255), (int(X), int(Y)), drawSize)
         i = i + 1
 
-    return foundPlayer, foundObject, objectIndex
+    return foundPlayer, foundObject, objectIndex, foundGuard, guardIndex
 
 def raycastDir(pos1X, pos1Y, pos2X, pos2Y):
     dirX = pos2X-pos1X
@@ -420,10 +429,10 @@ while running:
                 levelObstacles[currentLevel-1][i][0], levelObstacles[currentLevel-1][i][1], levelObstacles[currentLevel-1][i][8][1] = checkCollisionObject(levelObstacles[currentLevel-1][i][0], levelObstacles[currentLevel-1][i][1], levelObstacles[currentLevel-1][i][2], levelObstacles[currentLevel-1][i][3], levelObstacles[currentLevel-1], levelObstacles[currentLevel-1][i][8][1], levelObstacles[currentLevel-1][i][8][2])
             i = i + 1
 
-        pygame.draw.rect(display, (255, 255, 255), pygame.Rect(800, 700, 50, 50))
-        rayResults = Raycast(790, 725, axisDir("Left"), 10, 600, True, "Circle", 20, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
-        print(str(rayResults))
-
+        # Drawing all guards
+        i = 0
+        while i < len(levelGuards[currentLevel-1]):
+            
         
 
         # Drawing All Text
