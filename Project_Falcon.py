@@ -3,11 +3,17 @@ import random
 import pygame
 import sys
 from time import *
+from pygame import mixer
+
+mixer.init()
+mixer.music.load('Sounds/MainTheme.mp3')
+mixer.music.play()
 
 settingsDataPath = 'ProjectFalconData/settings.txt'
 settingsFolderPath = 'ProjectFalconData'
 if not os.path.exists(settingsFolderPath):
     os.makedirs(settingsFolderPath)
+
 
 displaySize = (1000, 900)
 levelColor = [(0, 0, 0)]
