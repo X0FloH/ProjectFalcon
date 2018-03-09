@@ -255,7 +255,7 @@ def Raycast(xPos, yPos, direction, width, length, draw, mode, drawSize, objects,
     X = xPos
     Y = yPos
     i = 0
-    while i < length and foundObject == False:
+    while i < length and foundObject == False and foundGuard == False and foundPlayer == False:
         X = X + direction[0]
         Y = Y + direction[1]
         if mode == "Circle":
@@ -268,6 +268,7 @@ def Raycast(xPos, yPos, direction, width, length, draw, mode, drawSize, objects,
                 if X + (drawSize) > guard[0] and X - (drawSize) < guard[0] + guard[2] and Y + (drawSize) > guard[1] and Y - (drawSize) < guard[1] + guard[3] and foundPlayer == False and foundObject == False:
                     foundGuard = True
                     guardIndex = getIndex(guard, guards)
+                    break
             if X + (drawSize) > playerX and X - (drawSize) < playerX + playerSize and Y + (drawSize) > playerY and Y - (drawSize) < playerY + playerSize and foundObject == False:
                 foundPlayer = True
                 break
@@ -370,14 +371,15 @@ while running:
     if currentGun == "Pistol":
         if pygame.mouse.get_pos()[0] > currentX + playerSize:
             if currentShooting:
-                results = Raycast(currentX + playerSize + 10, currentY + (playerSize/2), raycastDir(currentX + playerSize + 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
+                results = Raycast(currentX + playerSize + 10, currentY + (playerSize/2), raycastDir(currentX + playerSize + 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize, levelGuards[currentLevel-1])
+                print(str(results))
                 shootFrame += 1
                 if shootFrame > pistolMax:
                     currentShooting = False
                     shootFrame = 0
         if pygame.mouse.get_pos()[0] < currentX:
             if currentShooting:
-                results = Raycast(currentX - 10, currentY + (playerSize/2), raycastDir(currentX - 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
+                results = Raycast(currentX - 10, currentY + (playerSize/2), raycastDir(currentX - 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize, levelGuards[currentLevel-1])
                 shootFrame += 1
                 if shootFrame > pistolMax:
                     currentShooting = False
@@ -432,7 +434,8 @@ while running:
         # Drawing all guards
         i = 0
         while i < len(levelGuards[currentLevel-1]):
-            
+            drawObstacle("Rect", levelGuards[currentLevel-1][i][0], levelGuards[currentLevel-1][i][1], levelGuards[currentLevel-1][i][5], levelGuards[currentLevel-1][i][2], levelGuards[currentLevel-1][i][3], levelGuards[currentLevel-1][i][6])
+            i = i + 1
         
 
         # Drawing All Text
