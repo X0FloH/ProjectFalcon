@@ -25,6 +25,9 @@ bottomPlatformOffset = 100
 levelObstacles = [[[1, displaySize[1] - bottomPlatformOffset, displaySize[0], bottomPlatformOffset - 10, "Rect", (255, 255, 255), 0, [False], [False], False, False], [1, 1, 1000, 50, "Rect", (255, 255, 255), 0, [False], [False], False, False], [201, 300, 100, 50, "Rect", (255, 0, 0), 0, [False], [True, 0, 0], True, False], [600, 200, 150, 50, "Rect", (255, 255, 0), 0, [False], [True, 0, 0], False, False]]]
 levelText = [[[300, 300, 40, (255, 0, 255), 'Futura PT Light', 'Controls - WASD']]]
 
+#Defining all Guards
+levelGuards = [[[800, 700, 50, 50, (255, 0, 0), 100, (0.5, 0)]]]
+
 playerSize = 30
 playerBounceDivider = 3
 
@@ -249,14 +252,16 @@ def selectObject(current, selectableObjs, direction = "+"):
     return newObj
 
 
-def Raycast(xPos, yPos, direction, width, length, draw, mode, drawSize, objects, playerX, playerY, playerSize):
+def Raycast(xPos, yPos, direction, width, length, draw, mode, drawSize, objects, playerX, playerY, playerSize, guards):
     foundObject = False
     objectIndex = -1
     foundPlayer = False
+    foundGuard = False
+    guardIndex = -1
     X = xPos
     Y = yPos
     i = 0
-    while i < length and foundObject == False:
+    while i < length and foundObject == False and foundGuard == False and foundPlayer == False:
         X = X + direction[0]
         Y = Y + direction[1]
         if mode == "Circle":
@@ -265,6 +270,11 @@ def Raycast(xPos, yPos, direction, width, length, draw, mode, drawSize, objects,
                     foundObject = True
                     objectIndex = getIndex(obj, objects)
                     break
+            for guard in guards:
+                if X + (drawSize) > guard[0] and X - (drawSize) < guard[0] + guard[2] and Y + (drawSize) > guard[1] and Y - (drawSize) < guard[1] + guard[3] and foundPlayer == False and foundObject == False:
+                    foundGuard = True
+                    guardIndex = getIndex(guard, guards)
+                    break
             if X + (drawSize) > playerX and X - (drawSize) < playerX + playerSize and Y + (drawSize) > playerY and Y - (drawSize) < playerY + playerSize and foundObject == False:
                 foundPlayer = True
                 break
@@ -272,7 +282,7 @@ def Raycast(xPos, yPos, direction, width, length, draw, mode, drawSize, objects,
             pygame.draw.circle(display, (255, 255, 255), (int(X), int(Y)), drawSize)
         i = i + 1
 
-    return foundPlayer, foundObject, objectIndex
+    return foundPlayer, foundObject, objectIndex, foundGuard, guardIndex
 
 def raycastDir(pos1X, pos1Y, pos2X, pos2Y):
     dirX = pos2X-pos1X
@@ -367,14 +377,15 @@ while running:
     if currentGun == "Pistol":
         if pygame.mouse.get_pos()[0] > currentX + playerSize:
             if currentShooting:
-                results = Raycast(currentX + playerSize + 10, currentY + (playerSize/2), raycastDir(currentX + playerSize + 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
+                results = Raycast(currentX + playerSize + 10, currentY + (playerSize/2), raycastDir(currentX + playerSize + 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize, levelGuards[currentLevel-1])
+                print(str(results))
                 shootFrame += 1
                 if shootFrame > pistolMax:
                     currentShooting = False
                     shootFrame = 0
         if pygame.mouse.get_pos()[0] < currentX:
             if currentShooting:
-                results = Raycast(currentX - 10, currentY + (playerSize/2), raycastDir(currentX - 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
+                results = Raycast(currentX - 10, currentY + (playerSize/2), raycastDir(currentX - 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize, levelGuards[currentLevel-1])
                 shootFrame += 1
                 if shootFrame > pistolMax:
                     currentShooting = False
@@ -426,10 +437,11 @@ while running:
                 levelObstacles[currentLevel-1][i][0], levelObstacles[currentLevel-1][i][1], levelObstacles[currentLevel-1][i][8][1] = checkCollisionObject(levelObstacles[currentLevel-1][i][0], levelObstacles[currentLevel-1][i][1], levelObstacles[currentLevel-1][i][2], levelObstacles[currentLevel-1][i][3], levelObstacles[currentLevel-1], levelObstacles[currentLevel-1][i][8][1], levelObstacles[currentLevel-1][i][8][2])
             i = i + 1
 
-        pygame.draw.rect(display, (255, 255, 255), pygame.Rect(800, 700, 50, 50))
-        rayResults = Raycast(790, 725, axisDir("Left"), 10, 600, True, "Circle", 20, levelObstacles[currentLevel-1], currentX, currentY, playerSize)
-        print(str(rayResults))
-
+        # Drawing all guards
+        i = 0
+        while i < len(levelGuards[currentLevel-1]):
+            drawObstacle("Rect", levelGuards[currentLevel-1][i][0], levelGuards[currentLevel-1][i][1], levelGuards[currentLevel-1][i][5], levelGuards[currentLevel-1][i][2], levelGuards[currentLevel-1][i][3], levelGuards[currentLevel-1][i][6])
+            i = i + 1
         
 
         # Drawing All Text
