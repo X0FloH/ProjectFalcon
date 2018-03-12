@@ -26,7 +26,7 @@ levelObstacles = [[[1, displaySize[1] - bottomPlatformOffset, displaySize[0], bo
 levelText = [[[300, 300, 40, (255, 0, 255), 'Futura PT Light', 'Controls - WASD']]]
 
 #Defining all Guards
-levelGuards = [[[800, 700, 50, 50, (255, 0, 0), 100, (0.5, 0)]]]
+levelGuards = [[[800, 700, 50, 50, 100, [-25, 25, (-1, 0), 750, 20], (255, 0, 0)]]]
 
 playerSize = 30
 playerBounceDivider = 3
@@ -291,13 +291,13 @@ def raycastDir(pos1X, pos1Y, pos2X, pos2Y):
 
 def axisDir(axis):
     if axis == "Left" or axis == "left":
-        return (-1, 0)
+        return (-0.5, 0)
     if axis == "Right" or axis == "right":
-        return (1, 0)
+        return (0.5, 0)
     if axis == "Up" or axis == "up":
-        return (0, -1)
+        return (0, -0.5)
     if axis == "Down" or axis == "down":
-        return (0, 1)
+        return (0, 0.5)
 
 
 while running:
@@ -378,7 +378,6 @@ while running:
         if pygame.mouse.get_pos()[0] > currentX + playerSize:
             if currentShooting:
                 results = Raycast(currentX + playerSize + 10, currentY + (playerSize/2), raycastDir(currentX + playerSize + 10, currentY + (playerSize/2), pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 100, 900, True, "Circle", 10, levelObstacles[currentLevel-1], currentX, currentY, playerSize, levelGuards[currentLevel-1])
-                print(str(results))
                 shootFrame += 1
                 if shootFrame > pistolMax:
                     currentShooting = False
@@ -440,7 +439,8 @@ while running:
         # Drawing all guards
         i = 0
         while i < len(levelGuards[currentLevel-1]):
-            drawObstacle("Rect", levelGuards[currentLevel-1][i][0], levelGuards[currentLevel-1][i][1], levelGuards[currentLevel-1][i][5], levelGuards[currentLevel-1][i][2], levelGuards[currentLevel-1][i][3], levelGuards[currentLevel-1][i][6])
+            drawObstacle("Rect", levelGuards[currentLevel-1][i][0], levelGuards[currentLevel-1][i][1], levelGuards[currentLevel-1][i][6], levelGuards[currentLevel-1][i][2], levelGuards[currentLevel-1][i][3])
+            scanResults = Raycast(levelGuards[currentLevel-1][i][0]+levelGuards[currentLevel-1][i][5][0], levelGuards[currentLevel-1][i][1]+levelGuards[currentLevel-1][i][5][1], levelGuards[currentLevel-1][i][5][2], 10, levelGuards[currentLevel-1][i][5][3], True, "Circle", levelGuards[currentLevel-1][i][5][4], levelObstacles[currentLevel-1], currentX, currentY, playerSize, levelGuards[currentLevel-1])
             i = i + 1
         
 
