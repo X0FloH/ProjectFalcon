@@ -244,10 +244,8 @@ def selectObject(current, selectableObjs, direction = "+"):
             
     elif direction == "-":
         currentID -= 1
-        print("Unofficial: " + str(currentID))
         if currentID < 0:
             currentID = len(selectableObjs)-1
-    print(str(currentID))
     newObj = selectableObjs[currentID]
     return newObj
 
@@ -282,7 +280,7 @@ def Raycast(xPos, yPos, direction, width, length, draw, mode, drawSize, objects,
             pygame.draw.circle(display, (255, 255, 255), (int(X), int(Y)), drawSize)
         i = i + 1
 
-    return foundPlayer, foundObject, objectIndex, foundGuard, guardIndex
+    return foundPlayer, foundObject, objectIndex, foundGuard, guardIndex, X , Y
 
 def raycastDir(pos1X, pos1Y, pos2X, pos2Y):
     dirX = pos2X-pos1X
@@ -393,7 +391,7 @@ while running:
     if showingSettings == False:
         # Add Gravity
         currentYVelocity += gravityScale
-        currentY = currentY + currentYVelocity
+        currentY += currentYVelocity
 
         # Stop falling through window
         # if currentY >= displaySize[1] - bottomPlatformOffset:
